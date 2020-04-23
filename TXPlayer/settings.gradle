@@ -1,0 +1,2 @@
+rootProject.name='TXPlayer'
+include ':app', ':dkplayer-java', ':tsplayer', ':dkplayer-ui'
