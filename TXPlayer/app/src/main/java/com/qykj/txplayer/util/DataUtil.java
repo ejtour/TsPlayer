@@ -19,9 +19,6 @@ public class DataUtil {
     public static List<VideoBean> getVideoList() {
         List<VideoBean> videoList = new ArrayList<>();
 
-        videoList.add(new VideoBean("CCTV8电视剧",
-                "https://cms-bucket.nosdn.127.net/eb411c2810f04ffa8aaafc42052b233820180418095416.jpeg",
-                "http://cctvcnch5c.v.wscdns.com/live/cctv8_2/index.m3u8"));
 
         videoList.add(new VideoBean("CCTV10科教",
                 "https://cms-bucket.nosdn.127.net/cb37178af1584c1588f4a01e5ecf323120180418133127.jpeg",
