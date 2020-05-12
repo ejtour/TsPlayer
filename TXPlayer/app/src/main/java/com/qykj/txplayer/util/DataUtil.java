@@ -21,11 +21,11 @@ public class DataUtil {
 
         videoList.add(new VideoBean("CCTV10科教",
                 "https://cms-bucket.nosdn.127.net/cb37178af1584c1588f4a01e5ecf323120180418133127.jpeg",
-                "https://aldirect.hls.huya.com/src/78941969-2773696425-11912935434407116800-2199063580264-10057-A-0-1_2500.m3u8?wsSecret=3d06f9aa6a52e018dcf488af8a989a4b&wsTime=5ea161ad"));
+                "http://vfx.mtime.cn/Video/2019/03/19/mp4/190319125415785691.mp4"));
 
         videoList.add(new VideoBean("CCTV11戏曲",
                 "https://cms-bucket.nosdn.127.net/eb411c2810f04ffa8aaafc42052b233820180418095416.jpeg",
-                "http://cctvcnch5c.v.wscdns.com/live/cctv11_2/index.m3u8"));
+                "http://vfx.mtime.cn/Video/2019/03/19/mp4/190319125415785691.mp4"));
 
         videoList.add(new VideoBean("新闻联播",
                 "https://cms-bucket.nosdn.127.net/cb37178af1584c1588f4a01e5ecf323120180418133127.jpeg",

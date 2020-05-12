@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.widget.Toast;
@@ -25,6 +26,7 @@ public class TsSuperPlayer extends AbstractPlayer implements ITXVodPlayListener 
     private TXVodPlayer mVodPlayer;
     private TXVodPlayConfig mVodPlayConfig;
     private String mPlayUrl, mFileId;
+    private boolean mVideoPlay = false;
 
     public TsSuperPlayer(Context context) {
         mAppContext = context;
@@ -41,6 +43,8 @@ public class TsSuperPlayer extends AbstractPlayer implements ITXVodPlayListener 
             this.mVodPlayer.setVodListener(this);
             this.mVodPlayer.enableHardwareDecode(false);
         }
+        mVideoPlay = false;
+
     }
 
     @Override
@@ -60,13 +64,25 @@ public class TsSuperPlayer extends AbstractPlayer implements ITXVodPlayListener 
 
     @Override
     public void start() {
+
+        Log.e("==>>", "ts==>>start()");
+
+        resume();
+
+    }
+
+    private void resume() {
         if (this.mVodPlayer != null) {
-            this.mVodPlayer.startPlay(mPlayUrl);
+            this.mVodPlayer.resume();
         }
     }
 
+
     @Override
     public void pause() {
+
+        Log.e("==>>", "tsPlayer pause()");
+
         if (this.mVodPlayer != null) {
             this.mVodPlayer.pause();
         }
@@ -76,6 +92,7 @@ public class TsSuperPlayer extends AbstractPlayer implements ITXVodPlayListener 
     public void stop() {
         try {
             mVodPlayer.stopPlay(false);
+            mVideoPlay = false;
         } catch (IllegalStateException e) {
             mPlayerEventListener.onError();
         }
@@ -84,6 +101,7 @@ public class TsSuperPlayer extends AbstractPlayer implements ITXVodPlayListener 
     @Override
     public void prepareAsync() {
 
+        playVodURL(mPlayUrl);
     }
 
 
@@ -93,21 +111,28 @@ public class TsSuperPlayer extends AbstractPlayer implements ITXVodPlayListener 
 
     @Override
     public boolean isPlaying() {
-        return this.mVodPlayer.isPlaying();
+        if (this.mVodPlayer != null) {
+            return this.mVodPlayer.isPlaying();
+        }
+        return false;
     }
 
     @Override
     public void seekTo(long time) {
 
         if (mVodPlayer != null) {
-            mVodPlayer.seek(time / 1000F);
+            mVodPlayer.seek(time / 1000);
         }
     }
 
     @Override
     public void release() {
-        mVodPlayer.setVodListener(null);
-        mVodPlayer.stopPlay(false);
+
+        if (this.mVodPlayer != null) {
+            this.mVodPlayer.setVodListener(null);
+            this.mVodPlayer.stopPlay(false);
+        }
+
     }
 
     @Override
@@ -137,7 +162,7 @@ public class TsSuperPlayer extends AbstractPlayer implements ITXVodPlayListener 
     public void setSurface(Surface surface) {
         if (this.mVodPlayer != null) {
             this.mVodPlayer.setSurface(surface);
-            mVodPlayer.startPlay(mPlayUrl);
+            playVodURL(mPlayUrl);
         }
     }
 
@@ -168,9 +193,11 @@ public class TsSuperPlayer extends AbstractPlayer implements ITXVodPlayListener 
 
     @Override
     public void setSpeed(float speed) {
+
+        Log.e("==>>", "setSpeed" + speed / 1000);
         mSpeed = speed;
         if (this.mVodPlayer != null) {
-            this.mVodPlayer.setRate(speed);
+            this.mVodPlayer.setRate(speed / 1000);
         }
     }
 
@@ -188,6 +215,7 @@ public class TsSuperPlayer extends AbstractPlayer implements ITXVodPlayListener 
     @Override
     public void onPlayEvent(TXVodPlayer txVodPlayer, int event, Bundle bundle) {
         if (event != 2005) {
+            Log.e("jyj------>", "----event------->" + event + "-----bundle---->" + bundle.toString());
         }
         onPlayEvent(event, bundle);
     }
@@ -195,7 +223,7 @@ public class TsSuperPlayer extends AbstractPlayer implements ITXVodPlayListener 
     private void onPlayEvent(int event, Bundle param) {
         if (event != 2005) {
             String playEventLog = "TXLivePlayer onPlayEvent event: " + event + ", " + param.getString("EVT_MSG");
-            TXCLog.d("SuperPlayerView", playEventLog);
+            Log.e("===>>", playEventLog);
         }
 
         switch (event) {
@@ -208,7 +236,6 @@ public class TsSuperPlayer extends AbstractPlayer implements ITXVodPlayListener 
                 mPlayerEventListener.onError();
                 break;
             case TXLiveConstants.PLAY_ERR_FILE_NOT_FOUND:
-
                 break;
             case TXLiveConstants.PLAY_EVT_PLAY_END:
                 //2006 播放完成
@@ -222,9 +249,8 @@ public class TsSuperPlayer extends AbstractPlayer implements ITXVodPlayListener 
                 break;
             case TXLiveConstants.PLAY_EVT_PLAY_BEGIN:
                 //2004 播放开始
-                mPlayerEventListener.onPrepared();
-                mPlayerEventListener.onInfo(MEDIA_INFO_VIDEO_RENDERING_START, -1);
-
+//                mPlayerEventListener.onPrepared();
+//                mPlayerEventListener.onInfo(MEDIA_INFO_VIDEO_RENDERING_START, -1);
                 break;
             case TXLiveConstants.PLAY_EVT_PLAY_PROGRESS:
                 // 2005 播放进度
@@ -238,8 +264,9 @@ public class TsSuperPlayer extends AbstractPlayer implements ITXVodPlayListener 
 
                 break;
             case TXLiveConstants.PLAY_EVT_VOD_LOADING_END:
-                //缓冲结束
+                //2014缓冲结束
                 mPlayerEventListener.onInfo(MEDIA_INFO_BUFFERING_END, -1);
+
                 break;
             case TXLiveConstants.PLAY_EVT_VOD_PLAY_PREPARED:
                 //2013点播准备完成
@@ -261,5 +288,35 @@ public class TsSuperPlayer extends AbstractPlayer implements ITXVodPlayListener 
     @Override
     public void onNetStatus(TXVodPlayer txVodPlayer, Bundle bundle) {
 
+    }
+
+
+    private void playVodURL(String url) {
+
+        if (url == null || "".equals(url)) {
+            return;
+        }
+
+
+        stopPlay(false);
+
+        if (mVodPlayer != null) {
+            mVodPlayer.setStartTime(0);
+            mVodPlayer.setAutoPlay(true);
+            mVodPlayer.setVodListener(this);
+            mVodPlayer.setToken(null);
+
+            int ret = mVodPlayer.startPlay(url);
+            mVideoPlay = ret == 0;
+
+        }
+    }
+
+
+    private void stopPlay(boolean isNeedClearLastImg) {
+        if (this.mVodPlayer != null) {
+            this.mVodPlayer.setVodListener(null);
+            this.mVodPlayer.stopPlay(isNeedClearLastImg);
+        }
     }
 }

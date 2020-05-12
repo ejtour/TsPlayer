@@ -196,6 +196,7 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
 
     /**
      * 第一次播放
+     *
      * @return 是否成功开始播放
      */
     protected boolean startPlay() {
@@ -310,6 +311,7 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
 
     /**
      * 设置播放数据
+     *
      * @return 播放数据是否设置成功
      */
     protected boolean prepareDataSource() {
@@ -1021,6 +1023,7 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
      */
     public interface OnStateChangeListener {
         void onPlayerStateChanged(int playerState);
+
         void onPlayStateChanged(int playState);
     }
 
@@ -1029,9 +1032,12 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
      */
     public static class SimpleOnStateChangeListener implements OnStateChangeListener {
         @Override
-        public void onPlayerStateChanged(int playerState) {}
+        public void onPlayerStateChanged(int playerState) {
+        }
+
         @Override
-        public void onPlayStateChanged(int playState) {}
+        public void onPlayStateChanged(int playState) {
+        }
     }
 
     /**
